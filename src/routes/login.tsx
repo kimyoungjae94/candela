@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { FirebaseError } from 'firebase/app';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useAuthState } from 'react-firebase-hooks/auth';
+import GoogleBtn from '../components/google-btn';
 
 const Wrapper = styled.div`
   height: 100%;
@@ -113,6 +114,7 @@ export default function CreateAccount() {
         <Input type='submit' value={isLoading ? 'Loading...' : '로그인'} />
       </Form>
       {error !== '' ? <Error>{error}</Error> : null}
+      <GoogleBtn />
     </Wrapper>
   );
 }
