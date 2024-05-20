@@ -15,7 +15,7 @@ const Header = styled.header`
   left: 0;
   background-color: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+  z-index: 1000; /* 네비게이션 바를 가장 위로 */
   height: 60px; /* 네비게이션 바의 높이 */
 `;
 
@@ -72,11 +72,13 @@ export default function Navbar() {
   }, [user, loading]);
 
   const logOut = async () => {
-    try {
-      await auth.signOut();
-      setIsLoggedIn(false);
-    } catch (error) {
-      console.error('Logout error:', error);
+    if (window.confirm('로그아웃 하시겠습니까?')) {
+      try {
+        await auth.signOut();
+        setIsLoggedIn(false);
+      } catch (error) {
+        console.error('Logout error:', error);
+      }
     }
   };
 
