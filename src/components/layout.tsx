@@ -3,7 +3,7 @@ import Navbar from './navbar';
 import styled from 'styled-components';
 
 const MainContent = styled.main`
-  padding-top: 70px;
+  padding-top: 0;
 `;
 
 export default function Layout() {
