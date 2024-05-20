@@ -14,16 +14,3 @@ export default function Logout() {
 
   return <button onClick={logOut}>Log out</button>;
 }
-
-// import { auth } from '../firebase';
-
-// export default function Logout() {
-//   const logOut = () => {
-//     auth.signOut();
-//   };
-//   return (
-//     <h1>
-//       <button onClick={logOut}>Log out</button>
-//     </h1>
-//   );
-// }

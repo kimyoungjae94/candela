@@ -14,7 +14,7 @@ import ProtectedRoute from './components/protected-route';
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Layout />, // 기본적으로 Layout을 보여줌
+    element: <Layout />,
     children: [
       {
         path: '',

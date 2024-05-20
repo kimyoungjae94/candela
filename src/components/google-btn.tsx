@@ -55,7 +55,7 @@ export default function GoogleBtn() {
 
   useEffect(() => {
     if (user) {
-      navigate('/'); // Google 로그인 성공 후 홈 페이지로 리디렉션
+      navigate('/');
     }
   }, [user, navigate]);
 
