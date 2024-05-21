@@ -25,7 +25,7 @@ const LogoContainer = styled.div`
 `;
 
 const LogoImg = styled.img`
-  max-height: 60px; /* 네비게이션 바의 높이에 맞춤 */
+  max-height: 90px; /* 네비게이션 바의 높이에 맞춤 */
   margin-right: 10px;
 `;
 
@@ -44,7 +44,7 @@ const AuthButton = styled.button`
   border: none;
   background: none;
   cursor: pointer;
-  font-size: 16px;
+  font-size: 15px;
   padding: 10px 20px;
   border-radius: 5px;
   transition: background-color 0.3s;
@@ -90,13 +90,13 @@ export default function Navbar() {
     <Header>
       <LogoContainer>
         <StyledLink to='/'>
-          <LogoImg src='/candela-x.svg' alt='logo' />
+          <LogoImg src='/candela-logo2.png' alt='logo' />
         </StyledLink>
         <NavLinks>
           <StyledLink to='/'>
-            <AuthButton>Review</AuthButton>
+            <AuthButton>Travel</AuthButton>
           </StyledLink>
-          <StyledLink to='/'>
+          <StyledLink to='/community'>
             <AuthButton>Community</AuthButton>
           </StyledLink>
         </NavLinks>

@@ -2,8 +2,8 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Navbar from './navbar';
 import styled from 'styled-components';
 
-const MainContent = styled.main<{ isHome: boolean }>`
-  padding-top: ${(props) => (props.isHome ? '0' : '70px')};
+const MainContent = styled.main<{ $isHome: boolean }>`
+  padding-top: ${(props) => (props.$isHome ? '0' : '70px')};
 `;
 
 export default function Layout() {
@@ -13,7 +13,7 @@ export default function Layout() {
   return (
     <>
       <Navbar />
-      <MainContent isHome={isHome}>
+      <MainContent $isHome={isHome}>
         <Outlet />
       </MainContent>
     </>
