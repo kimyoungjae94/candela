@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '../firebase';
+import { auth, db, storage } from '../firebase';
 import styled from 'styled-components';
+import { useAuthState } from 'react-firebase-hooks/auth';
 
 const Container = styled.div`
   padding: 20px;
@@ -45,11 +46,18 @@ const Button = styled.button`
   }
 `;
 
-export default function CreatePost() {
+export default function TravelCreate() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [image, setImage] = useState<File | null>(null);
   const navigate = useNavigate();
+  const [user] = useAuthState(auth);
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -74,18 +82,17 @@ export default function CreatePost() {
       createdAt: serverTimestamp(),
     });
 
-    const newPost = {
-      id: postRef.id,
-      title,
-      content,
-      imageUrl,
-      createdAt: {
-        seconds: Math.floor(Date.now() / 1000),
-        nanoseconds: 0,
+    navigate('/travel', {
+      state: {
+        newPost: {
+          id: postRef.id,
+          title,
+          content,
+          imageUrl,
+          createdAt: { seconds: Date.now() / 1000, nanoseconds: 0 },
+        },
       },
-    };
-
-    navigate('/community', { state: { newPost } });
+    });
   };
 
   return (

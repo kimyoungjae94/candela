@@ -4,8 +4,16 @@ import { Link } from 'react-router-dom';
 
 const images = ['/banner-1.jpg', '/banner-2.jpg', '/banner-3.jpg'];
 
+const PageContainer = styled.div`
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
 const Banner = styled.div<{ $backgroundImage: string }>`
-  width: 100vw;
+  width: 100vw; /* 뷰포트 너비를 꽉 채우도록 설정 */
   height: 900px;
   background-image: url(${(props) => props.$backgroundImage});
   background-size: cover;
@@ -53,6 +61,10 @@ const Button = styled(Link)`
 
 const Content = styled.div`
   padding: 20px;
+  width: 100%;
+  max-width: 1200px; /* 최대 너비를 설정하여 중앙 정렬 */
+  box-sizing: border-box;
+  margin: 0 auto; /* 중앙 정렬을 위해 추가 */
 `;
 
 export default function Home() {
@@ -67,7 +79,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div>
+    <PageContainer>
       <Banner $backgroundImage={images[currentImageIndex]}>
         <TextOverlay>
           <h1>Welcome to the Community!</h1>
@@ -78,6 +90,6 @@ export default function Home() {
       <Content>
         <p>Additional content can go here.</p>
       </Content>
-    </div>
+    </PageContainer>
   );
 }

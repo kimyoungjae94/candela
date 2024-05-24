@@ -5,14 +5,16 @@ import Profile from './routes/profile';
 import Login from './routes/login';
 import CreateAccount from './routes/create-account';
 import AboutUs from './routes/about-us';
-import Community from './routes/community';
+import Travel from './routes/travel';
 import styled, { createGlobalStyle } from 'styled-components';
 import reset from 'styled-reset';
 import { useEffect, useState } from 'react';
 import LoadingScreen from './components/loading-screen';
 import { auth } from './firebase';
 import ProtectedRoute from './components/protected-route';
-import CreatePost from './routes/create-post';
+import TravelCreate from './routes/travel-create-post';
+import TravelDetail from './routes/travel-detail';
+import ErrorBoundary from './components/error-boundary';
 
 const router = createBrowserRouter([
   {
@@ -36,12 +38,20 @@ const router = createBrowserRouter([
         element: <AboutUs />,
       },
       {
-        path: 'community',
-        element: <Community />,
+        path: 'travel',
+        element: <Travel />,
       },
       {
-        path: 'create-post',
-        element: <CreatePost />,
+        path: 'travel-create-post',
+        element: (
+          <ProtectedRoute>
+            <TravelCreate />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'travel-detail/:postId',
+        element: <TravelDetail />,
       },
     ],
   },
@@ -71,6 +81,7 @@ body {
 const Wrapper = styled.div`
   height: 100vh;
   display: flex;
+  flex-direction: column;
 `;
 
 function App() {
@@ -86,7 +97,13 @@ function App() {
   return (
     <Wrapper>
       <GlobalStyles />
-      {isLoading ? <LoadingScreen /> : <RouterProvider router={router} />}
+      {isLoading ? (
+        <LoadingScreen />
+      ) : (
+        <ErrorBoundary>
+          <RouterProvider router={router} />
+        </ErrorBoundary>
+      )}
     </Wrapper>
   );
 }

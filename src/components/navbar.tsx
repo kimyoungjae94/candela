@@ -93,10 +93,10 @@ export default function Navbar() {
           <LogoImg src='/candela-logo2.png' alt='logo' />
         </StyledLink>
         <NavLinks>
-          <StyledLink to='/'>
+          <StyledLink to='/travel'>
             <AuthButton>Travel</AuthButton>
           </StyledLink>
-          <StyledLink to='/community'>
+          <StyledLink to='/'>
             <AuthButton>Community</AuthButton>
           </StyledLink>
         </NavLinks>
