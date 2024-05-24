@@ -4,12 +4,12 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyCXF7Z2KU-rdgGE7n6ZP8xWYpOnWApSto0',
-  authDomain: 'candela-debe0.firebaseapp.com',
-  projectId: 'candela-debe0',
-  storageBucket: 'candela-debe0.appspot.com',
-  messagingSenderId: '703466379141',
-  appId: '1:703466379141:web:ed8d2612a354fef79896ec',
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 const app = initializeApp(firebaseConfig);

@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
+import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { db } from '../firebase';
 
 const images = ['/banner-1.jpg', '/banner-2.jpg', '/banner-3.jpg'];
 
@@ -13,8 +15,8 @@ const PageContainer = styled.div`
 `;
 
 const Banner = styled.div<{ $backgroundImage: string }>`
-  width: 100vw; /* 뷰포트 너비를 꽉 채우도록 설정 */
-  height: 900px;
+  width: 100vw;
+  height: 810px;
   background-image: url(${(props) => props.$backgroundImage});
   background-size: cover;
   background-position: center;
@@ -62,13 +64,53 @@ const Button = styled(Link)`
 const Content = styled.div`
   padding: 20px;
   width: 100%;
-  max-width: 1200px; /* 최대 너비를 설정하여 중앙 정렬 */
+  max-width: 1200px;
   box-sizing: border-box;
-  margin: 0 auto; /* 중앙 정렬을 위해 추가 */
+  margin: 0 auto;
 `;
+
+const PostGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
+`;
+
+const PostItem = styled.div`
+  width: 100%;
+  max-width: 300px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+`;
+
+const PostImage = styled.img`
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+  margin-bottom: 10px;
+`;
+
+interface Post {
+  id: string;
+  title: string;
+  content: string;
+  imageUrl: string;
+  createdAt: {
+    seconds: number;
+    nanoseconds: number;
+  };
+}
 
 export default function Home() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [posts, setPosts] = useState<Post[]>([]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -76,6 +118,22 @@ export default function Home() {
     }, 5000);
 
     return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const postsData = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        title: doc.data().title,
+        content: doc.data().content,
+        imageUrl: doc.data().imagaUrl,
+        createdAt: doc.data().createdAt,
+      })) as Post[];
+      setPosts(postsData);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   return (
@@ -88,7 +146,20 @@ export default function Home() {
         </TextOverlay>
       </Banner>
       <Content>
-        <p>Additional content can go here.</p>
+        <PostGrid>
+          {posts.map((post) => (
+            <PostItem key={post.id}>
+              {post.imageUrl && (
+                <PostImage src={post.imageUrl} alt={post.title} />
+              )}
+              <h2>{post.title}</h2>
+              <p>{post.content}</p>
+              <small>
+                {new Date(post.createdAt.seconds * 1000).toLocaleDateString()}
+              </small>
+            </PostItem>
+          ))}
+        </PostGrid>
       </Content>
     </PageContainer>
   );

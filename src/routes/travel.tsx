@@ -7,8 +7,10 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 
 const PageContainer = styled.div`
   display: flex;
-  justify-content: center; /* 전체 페이지 중앙 정렬 */
-  // padding: 20px;
+  justify-content: center;
+  align-items: center;
+  // min-height: 100vh;
+  padding: 20px;
   width: 100%;
   box-sizing: border-box;
 `;
@@ -18,23 +20,20 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 1400px; /* 최대 너비를 늘림 */
-  padding-top: 0; /* 네비게이션 바 아래에 붙도록 설정 */
+  max-width: 1400px;
+  padding: 0 20px;
   box-sizing: border-box;
 `;
 
 const Title = styled.h1`
   font-size: 36px;
   margin-bottom: 20px;
-  text-align: center; /* 텍스트 중앙 정렬 */
+  text-align: center;
 `;
 
 const PostGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(
-    auto-fill,
-    minmax(300px, 1fr)
-  ); /* 유동적 그리드 설정 */
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 20px;
   width: 100%;
   box-sizing: border-box;
@@ -42,7 +41,7 @@ const PostGrid = styled.div`
 
 const PostItem = styled.div`
   width: 100%;
-  max-width: 300px; /* 최대 너비 설정 */
+  max-width: 300px;
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -101,13 +100,16 @@ export default function Travel() {
   useEffect(() => {
     const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const postsData = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        title: doc.data().title,
-        content: doc.data().content,
-        imageUrl: doc.data().imageUrl,
-        createdAt: doc.data().createdAt,
-      })) as Post[];
+      const postsData = querySnapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          title: data.title,
+          content: data.content,
+          imageUrl: data.imageUrl,
+          createdAt: data.createdAt || { seconds: 0, nanoseconds: 0 }, // null 처리
+        };
+      }) as Post[];
       setPosts(postsData);
     });
 
