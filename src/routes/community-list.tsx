@@ -66,6 +66,7 @@ interface Post {
   title: string;
   author: string;
   views: number;
+  imageUrl?: string;
   createdAt: {
     seconds: number;
     nanoseconds: number;

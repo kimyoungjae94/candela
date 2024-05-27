@@ -1,7 +1,8 @@
 import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { db, auth } from '../firebase';
+import { db, storage, auth } from '../firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import styled from 'styled-components';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import Comments from './community-comments';
@@ -20,6 +21,12 @@ const Content = styled.p`
   margin-bottom: 20px;
 `;
 
+const PostImage = styled.img`
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 20px;
+`;
+
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -27,7 +34,6 @@ const ButtonContainer = styled.div`
 `;
 
 const Button = styled.button`
-  margin-right: 10px;
   padding: 10px 20px;
   background-color: #000000b3;
   color: white;
@@ -48,10 +54,27 @@ const TextArea = styled.textarea`
   border-radius: 4px;
 `;
 
+const Input = styled.input`
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+`;
+
+const Label = styled.label`
+  margin-bottom: 10px;
+`;
+
 const Divider = styled.hr`
   margin: 20px 0;
   border: none;
   border-top: 1px solid #ddd;
+`;
+
+const RemoveImageButtonContainer = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
 `;
 
 interface Post {
@@ -60,6 +83,7 @@ interface Post {
   content: string;
   author: string;
   views: number;
+  imageUrl?: string;
   createdAt: {
     seconds: number;
     nanoseconds: number;
@@ -72,8 +96,10 @@ export default function CommunityDetail() {
   const [editMode, setEditMode] = useState(false);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
+  const [image, setImage] = useState<File | null>(null);
   const [user] = useAuthState(auth);
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -85,15 +111,25 @@ export default function CommunityDetail() {
           setPost(postData);
           setTitle(postData.title);
           setContent(postData.content);
-          await updateDoc(postRef, {
-            views: (postData.views || 0) + 1,
-          });
         }
       }
     };
 
     fetchPost();
   }, [postId]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setImage(e.target.files[0]);
+    }
+  };
+
+  const handleImageRemove = () => {
+    setImage(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handleEdit = () => {
     setEditMode(true);
@@ -103,17 +139,32 @@ export default function CommunityDetail() {
     setEditMode(false);
     setTitle(post?.title || '');
     setContent(post?.content || '');
+    setImage(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleSave = async () => {
     if (postId) {
       const postRef = doc(db, 'qandas', postId);
+
+      let newImageUrl = post?.imageUrl || '';
+      if (image) {
+        const imageRef = ref(storage, `images/${image.name}`);
+        await uploadBytes(imageRef, image);
+        newImageUrl = await getDownloadURL(imageRef);
+      }
+
       await updateDoc(postRef, {
         title,
         content,
+        imageUrl: newImageUrl,
       });
       setEditMode(false);
-      setPost((prev) => (prev ? { ...prev, title, content } : null));
+      setPost((prev) =>
+        prev ? { ...prev, title, content, imageUrl: newImageUrl } : null
+      );
     }
   };
 
@@ -144,6 +195,13 @@ export default function CommunityDetail() {
             onChange={(e) => setContent(e.target.value)}
             rows={10}
           />
+          <Label>Image</Label>
+          <Input type='file' onChange={handleImageChange} ref={fileInputRef} />
+          {image && (
+            <RemoveImageButtonContainer>
+              <Button onClick={handleImageRemove}>Remove Image</Button>
+            </RemoveImageButtonContainer>
+          )}
           <ButtonContainer>
             <Button onClick={handleSave}>Save</Button>
             <Button onClick={handleCancel}>Cancel</Button>
@@ -161,6 +219,7 @@ export default function CommunityDetail() {
           <br />
           <small>조회수: {post.views}</small>
           <Divider />
+          {post.imageUrl && <PostImage src={post.imageUrl} alt={post.title} />}
           <Content>{post.content}</Content>
           {isAuthor && (
             <ButtonContainer>

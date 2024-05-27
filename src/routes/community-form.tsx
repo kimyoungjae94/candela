@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db, auth } from '../firebase';
-import { useAuthState } from 'react-firebase-hooks/auth';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '../firebase';
 import styled from 'styled-components';
 
 const FormContainer = styled.div`
@@ -45,52 +45,65 @@ const Button = styled.button`
   }
 `;
 
-const ErrorMessage = styled.span`
-  color: red;
-  margin-bottom: 10px;
+const ImageInputContainer = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+`;
+
+const RemoveImageButton = styled.button`
+  position: absolute;
+  right: 10px;
+  padding: 5px 10px;
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #c9302c;
+  }
 `;
 
 export default function CommunityForm() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [titleError, setTitleError] = useState('');
-  const [contentError, setContentError] = useState('');
-  const [user] = useAuthState(auth);
+  const [image, setImage] = useState<File | null>(null);
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    let hasError = false;
-
-    if (title.trim() === '') {
-      setTitleError('Title is required.');
-      hasError = true;
-    } else {
-      setTitleError('');
+    let imageUrl = '';
+    if (image) {
+      const imageRef = ref(storage, `images/${image.name}`);
+      await uploadBytes(imageRef, image);
+      imageUrl = await getDownloadURL(imageRef);
     }
 
-    if (content.trim() === '') {
-      setContentError('Content is required.');
-      hasError = true;
-    } else {
-      setContentError('');
+    await addDoc(collection(db, 'qandas'), {
+      title,
+      content,
+      imageUrl,
+      createdAt: serverTimestamp(),
+    });
+
+    navigate('/community-list');
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setImage(e.target.files[0]);
     }
+  };
 
-    if (hasError) {
-      return;
-    }
-
-    if (user) {
-      await addDoc(collection(db, 'qandas'), {
-        title,
-        content,
-        author: user.displayName,
-        views: 0,
-        createdAt: serverTimestamp(),
-      });
-
-      navigate('/community-list');
+  const handleImageRemove = () => {
+    setImage(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
     }
   };
 
@@ -100,7 +113,6 @@ export default function CommunityForm() {
       <Form onSubmit={handleSubmit}>
         <Label>Title</Label>
         <Input value={title} onChange={(e) => setTitle(e.target.value)} />
-        {titleError && <ErrorMessage>{titleError}</ErrorMessage>}
 
         <Label>Content</Label>
         <TextArea
@@ -108,7 +120,16 @@ export default function CommunityForm() {
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
-        {contentError && <ErrorMessage>{contentError}</ErrorMessage>}
+
+        <Label>Image</Label>
+        <ImageInputContainer>
+          <Input type='file' onChange={handleImageChange} ref={fileInputRef} />
+          {image && (
+            <RemoveImageButton type='button' onClick={handleImageRemove}>
+              Remove
+            </RemoveImageButton>
+          )}
+        </ImageInputContainer>
 
         <Button type='submit'>Submit</Button>
       </Form>
