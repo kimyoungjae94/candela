@@ -15,6 +15,9 @@ import ProtectedRoute from './components/protected-route';
 import TravelCreate from './routes/travel-create-post';
 import TravelDetail from './routes/travel-detail';
 import ErrorBoundary from './components/error-boundary';
+import CommunityList from './routes/community-list';
+import CommunityForm from './routes/community-form';
+import CommunityDetail from './routes/community-detail';
 
 const router = createBrowserRouter([
   {
@@ -24,6 +27,22 @@ const router = createBrowserRouter([
       {
         path: '',
         element: <Home />,
+      },
+      {
+        path: 'community-list',
+        element: <CommunityList />,
+      },
+      {
+        path: 'community-form',
+        element: (
+          <ProtectedRoute>
+            <CommunityForm />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'community-detail/:postId',
+        element: <CommunityDetail />,
       },
       {
         path: 'profile',

@@ -96,7 +96,7 @@ export default function Navbar() {
           <StyledLink to='/travel'>
             <AuthButton>Travel</AuthButton>
           </StyledLink>
-          <StyledLink to='/'>
+          <StyledLink to='/community-list'>
             <AuthButton>Community</AuthButton>
           </StyledLink>
         </NavLinks>

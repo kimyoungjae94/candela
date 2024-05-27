@@ -1,12 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { auth, db, storage } from '../firebase';
-import styled from 'styled-components';
+import { db, auth } from '../firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
+import styled from 'styled-components';
 
-const Container = styled.div`
+const FormContainer = styled.div`
   padding: 20px;
 `;
 
@@ -46,61 +45,62 @@ const Button = styled.button`
   }
 `;
 
-export default function TravelCreate() {
+const ErrorMessage = styled.span`
+  color: red;
+  margin-bottom: 10px;
+`;
+
+export default function CommunityForm() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [image, setImage] = useState<File | null>(null);
-  const navigate = useNavigate();
+  const [titleError, setTitleError] = useState('');
+  const [contentError, setContentError] = useState('');
   const [user] = useAuthState(auth);
-
-  useEffect(() => {
-    if (!user) {
-      navigate('/login');
-    }
-  }, [user, navigate]);
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0]);
-    }
-  };
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    let imageUrl = '';
-    if (image) {
-      const imageRef = ref(storage, `images/${image.name}`);
-      await uploadBytes(imageRef, image);
-      imageUrl = await getDownloadURL(imageRef);
+    let hasError = false;
+
+    if (title.trim() === '') {
+      setTitleError('Title is required.');
+      hasError = true;
+    } else {
+      setTitleError('');
     }
 
-    const postRef = await addDoc(collection(db, 'posts'), {
-      title,
-      content,
-      imageUrl,
-      createdAt: serverTimestamp(),
-    });
+    if (content.trim() === '') {
+      setContentError('Content is required.');
+      hasError = true;
+    } else {
+      setContentError('');
+    }
 
-    navigate('/travel', {
-      state: {
-        newPost: {
-          id: postRef.id,
-          title,
-          content,
-          imageUrl,
-          createdAt: { seconds: Date.now() / 1000, nanoseconds: 0 },
-        },
-      },
-    });
+    if (hasError) {
+      return;
+    }
+
+    if (user) {
+      await addDoc(collection(db, 'qandas'), {
+        title,
+        content,
+        author: user.displayName,
+        views: 0,
+        createdAt: serverTimestamp(),
+      });
+
+      navigate('/community-list');
+    }
   };
 
   return (
-    <Container>
+    <FormContainer>
       <h1>Create Post</h1>
       <Form onSubmit={handleSubmit}>
         <Label>Title</Label>
         <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+        {titleError && <ErrorMessage>{titleError}</ErrorMessage>}
 
         <Label>Content</Label>
         <TextArea
@@ -108,12 +108,10 @@ export default function TravelCreate() {
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
-
-        <Label>Image</Label>
-        <Input type='file' onChange={handleImageChange} />
+        {contentError && <ErrorMessage>{contentError}</ErrorMessage>}
 
         <Button type='submit'>Submit</Button>
       </Form>
-    </Container>
+    </FormContainer>
   );
 }
