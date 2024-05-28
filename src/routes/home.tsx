@@ -127,7 +127,7 @@ export default function Home() {
         id: doc.id,
         title: doc.data().title,
         content: doc.data().content,
-        imageUrl: doc.data().imagaUrl,
+        imageUrl: doc.data().imageUrl,
         createdAt: doc.data().createdAt,
       })) as Post[];
       setPosts(postsData);
@@ -135,6 +135,8 @@ export default function Home() {
 
     return () => unsubscribe();
   }, []);
+
+  const recentPosts = posts.slice(0, 3);
 
   return (
     <PageContainer>
@@ -147,7 +149,7 @@ export default function Home() {
       </Banner>
       <Content>
         <PostGrid>
-          {posts.map((post) => (
+          {recentPosts.map((post) => (
             <PostItem key={post.id}>
               {post.imageUrl && (
                 <PostImage src={post.imageUrl} alt={post.title} />
