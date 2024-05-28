@@ -15,7 +15,9 @@ const TableContainer = styled.div`
 `;
 
 const Title = styled.h1`
+  color: #4a6177;
   font-size: 36px;
+  font-weight: bold;
   margin-bottom: 30px;
   text-align: center;
 `;
@@ -27,6 +29,8 @@ const Table = styled.table`
 `;
 
 const Th = styled.th`
+  color: #4a6177;
+  font-weight: bold;
   border-bottom: 1px solid #ddd;
   padding: 10px;
 `;

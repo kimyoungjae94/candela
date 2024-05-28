@@ -43,8 +43,10 @@ const NavLinks = styled.div`
 const AuthButton = styled.button`
   border: none;
   background: none;
+  color: #4a6177;
   cursor: pointer;
   font-size: 15px;
+  font-weight: bold;
   padding: 10px 20px;
   border-radius: 5px;
   transition: background-color 0.3s;
