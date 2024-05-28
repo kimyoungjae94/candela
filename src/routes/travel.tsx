@@ -4,12 +4,14 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { db, auth } from '../firebase';
 import styled from 'styled-components';
 import { useAuthState } from 'react-firebase-hooks/auth';
+import ReactPaginate from 'react-paginate';
+import '../styles/pagination.css';
 
 const PageContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  padding: 0 20px;
   width: 100%;
   box-sizing: border-box;
 `;
@@ -84,7 +86,7 @@ interface Post {
   title: string;
   content: string;
   imageUrl: string;
-  author: string; // Author 필드 추가
+  author: string;
   createdAt: {
     seconds: number;
     nanoseconds: number;
@@ -96,6 +98,8 @@ export default function Travel() {
   const [user] = useAuthState(auth);
   const location = useLocation();
   const navigate = useNavigate();
+  const [currentPage, setCurrentPage] = useState(0);
+  const postsPerPage = 8; // 한 페이지에 8개의 포스트를 보여줍니다.
 
   useEffect(() => {
     const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
@@ -107,7 +111,7 @@ export default function Travel() {
           title: data.title,
           content: data.content,
           imageUrl: data.imageUrl,
-          author: data.author, // Author 필드 가져오기
+          author: data.author,
           createdAt: data.createdAt || { seconds: 0, nanoseconds: 0 },
         };
       }) as Post[];
@@ -142,6 +146,15 @@ export default function Travel() {
     }
   };
 
+  const handlePageClick = ({ selected }: { selected: number }) => {
+    setCurrentPage(selected);
+  };
+
+  const currentPosts = posts.slice(
+    currentPage * postsPerPage,
+    (currentPage + 1) * postsPerPage
+  );
+
   return (
     <PageContainer>
       <Container>
@@ -150,7 +163,7 @@ export default function Travel() {
           <Button onClick={handleCreatePostClick}>Create Post</Button>
         </ButtonContainer>
         <PostGrid>
-          {posts.map((post) => (
+          {currentPosts.map((post) => (
             <PostItem key={post.id} onClick={() => handlePostClick(post.id)}>
               {post.imageUrl && (
                 <PostImage src={post.imageUrl} alt={post.title} />
@@ -163,6 +176,18 @@ export default function Travel() {
             </PostItem>
           ))}
         </PostGrid>
+        <ReactPaginate
+          previousLabel={'<'}
+          nextLabel={'>'}
+          breakLabel={'...'}
+          breakClassName={'break-me'}
+          pageCount={Math.ceil(posts.length / postsPerPage)}
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={5}
+          onPageChange={handlePageClick}
+          containerClassName={'pagination'}
+          activeClassName={'active'}
+        />
       </Container>
     </PageContainer>
   );
