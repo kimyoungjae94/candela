@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
-import { auth, db } from '../firebase';
+import { useParams, useNavigate } from 'react-router-dom';
+import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { db, auth } from '../firebase';
 import styled from 'styled-components';
 import { useAuthState } from 'react-firebase-hooks/auth';
 
@@ -15,6 +15,9 @@ const Container = styled.div`
 
 const ImageContainer = styled.div`
   flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 const ContentContainer = styled.div`
@@ -30,17 +33,22 @@ const Title = styled.h1`
 `;
 
 const Content = styled.p`
-  font-size: 16px;
+  font-size: 18px;
   margin-bottom: 20px;
 `;
 
 const PostImage = styled.img`
   max-width: 100%;
+  max-height: 600px;
+  width: auto;
   height: auto;
   border-radius: 4px;
 `;
 
-const Author = styled.p`
+const AuthorContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
   font-size: 16px;
   color: #555;
 `;
@@ -54,6 +62,7 @@ const Divider = styled.hr`
 const ButtonContainer = styled.div`
   display: flex;
   gap: 10px;
+  justify-content: flex-end;
 `;
 
 const Button = styled.button`
@@ -174,12 +183,15 @@ export default function TravelDetail() {
         ) : (
           <>
             <Title>{post.title}</Title>
-            <small>
-              {new Date(post.createdAt.seconds * 1000).toLocaleDateString()}
-            </small>
-            <Author>Written by: {post.author}</Author>
+            <AuthorContainer>
+              <span>Written by: {post.author}</span>
+              <small>
+                {new Date(post.createdAt.seconds * 1000).toLocaleDateString()}
+              </small>
+            </AuthorContainer>
             <Divider />
             <Content>{post.content}</Content>
+            <Divider />
             {isAuthor && (
               <ButtonContainer>
                 <Button onClick={() => setIsEditing(true)}>Edit</Button>
