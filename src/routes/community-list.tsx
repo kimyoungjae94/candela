@@ -2,15 +2,28 @@ import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 import { db } from '../firebase';
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import ReactPaginate from 'react-paginate';
+import '../styles/pagination.css';
 
 const Container = styled.div`
   padding: 20px;
 `;
 
+const TableContainer = styled.div`
+  overflow-x: auto;
+`;
+
+const Title = styled.h1`
+  font-size: 36px;
+  margin-bottom: 30px;
+  text-align: center;
+`;
+
 const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
+  margin-bottom: 20px;
 `;
 
 const Th = styled.th`
@@ -24,25 +37,7 @@ const Td = styled.td`
   text-align: center;
 `;
 
-const Pagination = styled.div`
-  display: flex;
-  justify-content: center;
-  margin-top: 20px;
-`;
-
-const Button = styled.button`
-  margin: 0 5px;
-  padding: 5px 10px;
-  border: 1px solid #ddd;
-  background-color: #f9f9f9;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #e9e9e9;
-  }
-`;
-
-const ButtonContainer = styled.div`
+const WriteButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
   margin-top: 20px;
@@ -75,9 +70,10 @@ interface Post {
 
 const CommunityList = () => {
   const [qandas, setQandas] = useState<Post[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 10;
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const fetchQandas = async () => {
@@ -93,12 +89,21 @@ const CommunityList = () => {
     fetchQandas();
   }, []);
 
-  const indexOfLastItem = currentPage * itemsPerPage;
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const page = searchParams.get('page');
+    if (page) {
+      setCurrentPage(Number(page));
+    }
+  }, [location.search]);
+
+  const indexOfLastItem = (currentPage + 1) * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = qandas.slice(indexOfFirstItem, indexOfLastItem);
 
-  const handleClick = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
+  const handlePageClick = (event: { selected: number }) => {
+    setCurrentPage(event.selected);
+    navigate(`/community-list?page=${event.selected}`);
   };
 
   const handleRowClick = (postId: string) => {
@@ -111,42 +116,49 @@ const CommunityList = () => {
 
   return (
     <Container>
-      <Table>
-        <thead>
-          <tr>
-            <Th>No</Th>
-            <Th>제목</Th>
-            <Th>조회수</Th>
-            <Th>글쓴이</Th>
-            <Th>작성시간</Th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentItems.map((item, index) => (
-            <tr key={item.id} onClick={() => handleRowClick(item.id)}>
-              <Td>{index + 1}</Td>
-              <Td>{item.title}</Td>
-              <Td>{item.views}</Td>
-              <Td>{item.author}</Td>
-              <Td>
-                {new Date(item.createdAt.seconds * 1000).toLocaleDateString()}
-              </Td>
+      <TableContainer>
+        <Title>Community</Title>
+        <WriteButtonContainer>
+          <WriteButton onClick={handleWriteClick}>글쓰기</WriteButton>
+        </WriteButtonContainer>
+        <Table>
+          <thead>
+            <tr>
+              <Th>No</Th>
+              <Th>제목</Th>
+              <Th>조회수</Th>
+              <Th>글쓴이</Th>
+              <Th>작성시간</Th>
             </tr>
-          ))}
-        </tbody>
-      </Table>
-      <Pagination>
-        {[...Array(Math.ceil(qandas.length / itemsPerPage)).keys()].map(
-          (number) => (
-            <Button key={number + 1} onClick={() => handleClick(number + 1)}>
-              {number + 1}
-            </Button>
-          )
-        )}
-      </Pagination>
-      <ButtonContainer>
-        <WriteButton onClick={handleWriteClick}>글쓰기</WriteButton>
-      </ButtonContainer>
+          </thead>
+          <tbody>
+            {currentItems.map((item, index) => (
+              <tr key={item.id} onClick={() => handleRowClick(item.id)}>
+                <Td>{indexOfFirstItem + index + 1}</Td>
+                <Td>{item.title}</Td>
+                <Td>{item.views}</Td>
+                <Td>{item.author}</Td>
+                <Td>
+                  {new Date(item.createdAt.seconds * 1000).toLocaleDateString()}
+                </Td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </TableContainer>
+      <ReactPaginate
+        previousLabel={'<'}
+        nextLabel={'>'}
+        breakLabel={'...'}
+        breakClassName={'break-me'}
+        pageCount={Math.ceil(qandas.length / itemsPerPage)}
+        marginPagesDisplayed={2}
+        pageRangeDisplayed={5}
+        onPageChange={handlePageClick}
+        containerClassName={'pagination'}
+        activeClassName={'active'}
+        forcePage={currentPage}
+      />
     </Container>
   );
 };

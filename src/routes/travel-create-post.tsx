@@ -46,10 +46,18 @@ const Button = styled.button`
   }
 `;
 
+const Error = styled.div`
+  color: red;
+  margin-bottom: 20px;
+`;
+
 export default function TravelCreate() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [image, setImage] = useState<File | null>(null);
+  const [titleError, setTitleError] = useState('');
+  const [contentError, setContentError] = useState('');
+  const [imageError, setImageError] = useState('');
   const navigate = useNavigate();
   const [user] = useAuthState(auth);
 
@@ -62,11 +70,39 @@ export default function TravelCreate() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setImage(e.target.files[0]);
+      setImageError(''); // Reset image error
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    let valid = true;
+
+    if (title.trim() === '') {
+      setTitleError('Title is required');
+      valid = false;
+    } else {
+      setTitleError('');
+    }
+
+    if (content.trim() === '') {
+      setContentError('Content is required');
+      valid = false;
+    } else {
+      setContentError('');
+    }
+
+    if (!image) {
+      setImageError('Image is required');
+      valid = false;
+    } else {
+      setImageError('');
+    }
+
+    if (!valid) {
+      return;
+    }
 
     let imageUrl = '';
     if (image) {
@@ -80,6 +116,8 @@ export default function TravelCreate() {
       content,
       imageUrl,
       createdAt: serverTimestamp(),
+      author: user?.displayName || 'Anonymous', // Author field 추가
+      authorId: user?.uid,
     });
 
     navigate('/travel', {
@@ -90,6 +128,8 @@ export default function TravelCreate() {
           content,
           imageUrl,
           createdAt: { seconds: Date.now() / 1000, nanoseconds: 0 },
+          author: user?.displayName || 'Anonymous',
+          authorId: user?.uid,
         },
       },
     });
@@ -101,6 +141,7 @@ export default function TravelCreate() {
       <Form onSubmit={handleSubmit}>
         <Label>Title</Label>
         <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+        {titleError && <Error>{titleError}</Error>}
 
         <Label>Content</Label>
         <TextArea
@@ -108,9 +149,11 @@ export default function TravelCreate() {
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
+        {contentError && <Error>{contentError}</Error>}
 
         <Label>Image</Label>
         <Input type='file' onChange={handleImageChange} />
+        {imageError && <Error>{imageError}</Error>}
 
         <Button type='submit'>Submit</Button>
       </Form>

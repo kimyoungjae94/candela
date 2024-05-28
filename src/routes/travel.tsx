@@ -9,7 +9,6 @@ const PageContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  // min-height: 100vh;
   padding: 20px;
   width: 100%;
   box-sizing: border-box;
@@ -27,7 +26,7 @@ const Container = styled.div`
 
 const Title = styled.h1`
   font-size: 36px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   text-align: center;
 `;
 
@@ -85,6 +84,7 @@ interface Post {
   title: string;
   content: string;
   imageUrl: string;
+  author: string; // Author 필드 추가
   createdAt: {
     seconds: number;
     nanoseconds: number;
@@ -107,7 +107,8 @@ export default function Travel() {
           title: data.title,
           content: data.content,
           imageUrl: data.imageUrl,
-          createdAt: data.createdAt || { seconds: 0, nanoseconds: 0 }, // null 처리
+          author: data.author, // Author 필드 가져오기
+          createdAt: data.createdAt || { seconds: 0, nanoseconds: 0 },
         };
       }) as Post[];
       setPosts(postsData);
@@ -125,7 +126,7 @@ export default function Travel() {
         }
         return prevPosts;
       });
-      navigate(location.pathname, { replace: true }); // Clear state
+      navigate(location.pathname, { replace: true });
     }
   }, [location.state, navigate, location.pathname]);
 

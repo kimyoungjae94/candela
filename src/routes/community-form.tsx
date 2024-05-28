@@ -1,9 +1,10 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '../firebase';
+import { db, storage, auth } from '../firebase';
 import styled from 'styled-components';
+import { useAuthState } from 'react-firebase-hooks/auth';
 
 const FormContainer = styled.div`
   padding: 20px;
@@ -81,6 +82,13 @@ export default function CommunityForm() {
   const [contentError, setContentError] = useState('');
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [user] = useAuthState(auth);
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,6 +118,8 @@ export default function CommunityForm() {
       title,
       content,
       imageUrl,
+      author: user?.displayName || 'Anonymous',
+      views: 0,
       createdAt: serverTimestamp(),
     });
 

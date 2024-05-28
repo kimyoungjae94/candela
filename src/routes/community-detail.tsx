@@ -1,6 +1,6 @@
-import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { doc, getDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db, storage, auth } from '../firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import styled from 'styled-components';
@@ -138,7 +138,7 @@ export default function CommunityDetail() {
 
           // Increase view count
           await updateDoc(postRef, {
-            views: postData.views + 1,
+            views: (postData.views || 0) + 1,
           });
         }
       }
