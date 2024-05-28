@@ -99,7 +99,7 @@ export default function Travel() {
   const location = useLocation();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(0);
-  const postsPerPage = 8; // 한 페이지에 8개의 포스트를 보여줍니다.
+  const postsPerPage = 8;
 
   useEffect(() => {
     const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
@@ -160,7 +160,7 @@ export default function Travel() {
       <Container>
         <Title>Travel Posts</Title>
         <ButtonContainer>
-          <Button onClick={handleCreatePostClick}>Create Post</Button>
+          <Button onClick={handleCreatePostClick}>게시물 생성</Button>
         </ButtonContainer>
         <PostGrid>
           {currentPosts.map((post) => (

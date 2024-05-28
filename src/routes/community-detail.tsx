@@ -11,9 +11,24 @@ const Container = styled.div`
   padding: 20px;
 `;
 
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+`;
+
 const Title = styled.h1`
   font-size: 36px;
-  margin-bottom: 20px;
+  margin: 0;
+`;
+
+const MetaInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 16px;
+  color: #555;
 `;
 
 const Content = styled.p`
@@ -228,12 +243,14 @@ export default function CommunityDetail() {
     <Container>
       {editMode ? (
         <>
+          <h1>제목 :</h1>
           <TextArea
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             rows={2}
           />
           {titleError && <Error>{titleError}</Error>}
+          <p>내용 :</p>
           <TextArea
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -249,33 +266,35 @@ export default function CommunityDetail() {
             />
             {image && (
               <RemoveImageButton type='button' onClick={handleImageRemove}>
-                Remove
+                취소
               </RemoveImageButton>
             )}
           </ImageInputContainer>
           <ButtonContainer>
-            <Button onClick={handleSave}>Save</Button>
-            <Button onClick={handleCancel}>Cancel</Button>
+            <Button onClick={handleSave}>저장</Button>
+            <Button onClick={handleCancel}>취소</Button>
           </ButtonContainer>
         </>
       ) : (
         <>
-          <Title>{post.title}</Title>
-          <small>작성자: {post.author}</small>
-          <br />
-          <small>
-            작성일:{' '}
-            {new Date(post.createdAt.seconds * 1000).toLocaleDateString()}
-          </small>
-          <br />
-          <small>조회수: {post.views}</small>
+          <Header>
+            <Title>{post.title}</Title>
+            <MetaInfo>
+              <div>작성자: {post.author}</div>
+              <div>
+                작성일:{' '}
+                {new Date(post.createdAt.seconds * 1000).toLocaleDateString()}
+              </div>
+              <div>조회수: {post.views}</div>
+            </MetaInfo>
+          </Header>
           <Divider />
           {post.imageUrl && <PostImage src={post.imageUrl} alt={post.title} />}
           <Content>{post.content}</Content>
           {isAuthor && (
             <ButtonContainer>
-              <Button onClick={handleEdit}>Edit</Button>
-              <Button onClick={handleDelete}>Delete</Button>
+              <Button onClick={handleEdit}>수정</Button>
+              <Button onClick={handleDelete}>삭제</Button>
             </ButtonContainer>
           )}
           <Divider />

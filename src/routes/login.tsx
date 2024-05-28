@@ -84,7 +84,7 @@ export default function CreateAccount() {
       navigate('/');
     } catch (e) {
       if (e instanceof FirebaseError) {
-        setError(e.message);
+        setError('로그인 중 오류가 발생했습니다. 다시 시도해 주세요.');
       }
     } finally {
       setLoading(false);

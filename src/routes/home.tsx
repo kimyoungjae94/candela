@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -70,9 +70,10 @@ const Content = styled.div`
 `;
 
 const PostGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
+  display: flex; // Flexbox를 사용하여 가운데 정렬
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 25px;
   width: 100%;
   box-sizing: border-box;
 `;
@@ -92,7 +93,7 @@ const PostItem = styled.div`
 
 const PostImage = styled.img`
   width: 100%;
-  height: 300px;
+  height: 200px;
   object-fit: cover;
   margin-bottom: 10px;
 `;
@@ -111,6 +112,7 @@ interface Post {
 export default function Home() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [posts, setPosts] = useState<Post[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -136,7 +138,9 @@ export default function Home() {
     return () => unsubscribe();
   }, []);
 
-  const recentPosts = posts.slice(0, 3);
+  const handlePostClick = (postId: string) => {
+    navigate(`/travel-detail/${postId}`);
+  };
 
   return (
     <PageContainer>
@@ -149,8 +153,8 @@ export default function Home() {
       </Banner>
       <Content>
         <PostGrid>
-          {recentPosts.map((post) => (
-            <PostItem key={post.id}>
+          {posts.slice(0, 3).map((post) => (
+            <PostItem key={post.id} onClick={() => handlePostClick(post.id)}>
               {post.imageUrl && (
                 <PostImage src={post.imageUrl} alt={post.title} />
               )}

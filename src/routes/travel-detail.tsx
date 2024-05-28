@@ -184,7 +184,7 @@ export default function TravelDetail() {
           <>
             <Title>{post.title}</Title>
             <AuthorContainer>
-              <span>Written by: {post.author}</span>
+              <span>작성자 : {post.author}</span>
               <small>
                 {new Date(post.createdAt.seconds * 1000).toLocaleDateString()}
               </small>

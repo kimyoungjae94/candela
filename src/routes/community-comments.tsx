@@ -54,6 +54,7 @@ const CommentItem = styled.div`
   border: 1px solid #ddd;
   border-radius: 4px;
   margin-bottom: 10px;
+  position: relative;
 `;
 
 const ButtonContainer = styled.div`
@@ -73,6 +74,22 @@ const EditTextArea = styled.textarea`
 const ErrorMessage = styled.span`
   color: red;
   margin-bottom: 10px;
+`;
+
+const CommentAuthor = styled.p`
+  margin: 0;
+`;
+
+const CommentContent = styled.p`
+  margin: 0;
+  margin-top: 10px;
+`;
+
+const CommentDate = styled.small`
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  color: #777;
 `;
 
 interface Comment {
@@ -111,12 +128,12 @@ const Comments = ({ postId }: { postId: string }) => {
     e.preventDefault();
 
     if (content.trim() === '') {
-      setContentError('Comment content is required.');
+      setContentError('댓글 내용이 필요합니다.');
       return;
     }
 
     if (!user) {
-      alert('You must be logged in to post a comment.');
+      alert('로그인 이후 댓글 이용이 가능합니다.');
       return;
     }
 
@@ -151,20 +168,20 @@ const Comments = ({ postId }: { postId: string }) => {
 
   return (
     <Container>
-      <h2>Comments</h2>
+      <h2>댓글</h2>
       {user ? (
         <CommentForm onSubmit={handleSubmit}>
           <TextArea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             rows={3}
-            placeholder='Write a comment...'
+            placeholder='댓글을 작성하세요...'
           />
           {contentError && <ErrorMessage>{contentError}</ErrorMessage>}
           <Button type='submit'>Submit</Button>
         </CommentForm>
       ) : (
-        <p>You must be logged in to post a comment.</p>
+        <p>로그인 이후 댓글 이용이 가능합니다.</p>
       )}
       <CommentList>
         {comments.map((comment) => (
@@ -177,23 +194,23 @@ const Comments = ({ postId }: { postId: string }) => {
                   rows={3}
                 />
                 <ButtonContainer>
-                  <Button type='submit'>Save</Button>
-                  <Button onClick={() => setEditCommentId(null)}>Cancel</Button>
+                  <Button type='submit'>저장</Button>
+                  <Button onClick={() => setEditCommentId(null)}>취소</Button>
                 </ButtonContainer>
               </CommentForm>
             ) : (
               <>
-                <p>
+                <CommentAuthor>
                   <strong>{comment.author}</strong>
-                </p>
-                <small>
+                </CommentAuthor>
+                <CommentDate>
                   {comment.createdAt
                     ? new Date(
                         comment.createdAt.seconds * 1000
                       ).toLocaleString()
                     : 'Loading...'}
-                </small>
-                <p>{comment.content}</p>
+                </CommentDate>
+                <CommentContent>{comment.content}</CommentContent>
                 {user?.displayName === comment.author && (
                   <ButtonContainer>
                     <Button
@@ -202,10 +219,10 @@ const Comments = ({ postId }: { postId: string }) => {
                         setEditContent(comment.content);
                       }}
                     >
-                      Edit
+                      수정
                     </Button>
                     <Button onClick={() => handleDelete(comment.id)}>
-                      Delete
+                      삭제
                     </Button>
                   </ButtonContainer>
                 )}
