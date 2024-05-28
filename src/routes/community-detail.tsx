@@ -52,6 +52,7 @@ const TextArea = styled.textarea`
   margin-bottom: 20px;
   border: 1px solid #ddd;
   border-radius: 4px;
+  resize: none;
 `;
 
 const Input = styled.input`
@@ -71,9 +72,30 @@ const Divider = styled.hr`
   border-top: 1px solid #ddd;
 `;
 
-const RemoveImageButtonContainer = styled.div`
+const ImageInputContainer = styled.div`
+  position: relative;
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  margin-bottom: 20px;
+`;
+
+const RemoveImageButton = styled.button`
+  position: absolute;
+  right: 10px;
+  padding: 5px 10px;
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #c9302c;
+  }
+`;
+
+const Error = styled.div`
+  color: red;
   margin-bottom: 20px;
 `;
 
@@ -97,6 +119,8 @@ export default function CommunityDetail() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [image, setImage] = useState<File | null>(null);
+  const [titleError, setTitleError] = useState('');
+  const [contentError, setContentError] = useState('');
   const [user] = useAuthState(auth);
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -111,6 +135,11 @@ export default function CommunityDetail() {
           setPost(postData);
           setTitle(postData.title);
           setContent(postData.content);
+
+          // Increase view count
+          await updateDoc(postRef, {
+            views: postData.views + 1,
+          });
         }
       }
     };
@@ -146,6 +175,20 @@ export default function CommunityDetail() {
   };
 
   const handleSave = async () => {
+    if (title.trim() === '') {
+      setTitleError('Title is required');
+      return;
+    } else {
+      setTitleError('');
+    }
+
+    if (content.trim() === '') {
+      setContentError('Content is required');
+      return;
+    } else {
+      setContentError('');
+    }
+
     if (postId) {
       const postRef = doc(db, 'qandas', postId);
 
@@ -190,18 +233,26 @@ export default function CommunityDetail() {
             onChange={(e) => setTitle(e.target.value)}
             rows={2}
           />
+          {titleError && <Error>{titleError}</Error>}
           <TextArea
             value={content}
             onChange={(e) => setContent(e.target.value)}
             rows={10}
           />
+          {contentError && <Error>{contentError}</Error>}
           <Label>Image</Label>
-          <Input type='file' onChange={handleImageChange} ref={fileInputRef} />
-          {image && (
-            <RemoveImageButtonContainer>
-              <Button onClick={handleImageRemove}>Remove Image</Button>
-            </RemoveImageButtonContainer>
-          )}
+          <ImageInputContainer>
+            <Input
+              type='file'
+              onChange={handleImageChange}
+              ref={fileInputRef}
+            />
+            {image && (
+              <RemoveImageButton type='button' onClick={handleImageRemove}>
+                Remove
+              </RemoveImageButton>
+            )}
+          </ImageInputContainer>
           <ButtonContainer>
             <Button onClick={handleSave}>Save</Button>
             <Button onClick={handleCancel}>Cancel</Button>

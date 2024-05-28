@@ -30,6 +30,7 @@ const TextArea = styled.textarea`
   margin-bottom: 20px;
   border: 1px solid #ddd;
   border-radius: 4px;
+  resize: none;
 `;
 
 const Button = styled.button`
@@ -67,15 +68,36 @@ const RemoveImageButton = styled.button`
   }
 `;
 
+const Error = styled.div`
+  color: red;
+  margin-bottom: 20px;
+`;
+
 export default function CommunityForm() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [image, setImage] = useState<File | null>(null);
+  const [titleError, setTitleError] = useState('');
+  const [contentError, setContentError] = useState('');
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (title.trim() === '') {
+      setTitleError('Title is required');
+      return;
+    } else {
+      setTitleError('');
+    }
+
+    if (content.trim() === '') {
+      setContentError('Content is required');
+      return;
+    } else {
+      setContentError('');
+    }
 
     let imageUrl = '';
     if (image) {
@@ -113,6 +135,7 @@ export default function CommunityForm() {
       <Form onSubmit={handleSubmit}>
         <Label>Title</Label>
         <Input value={title} onChange={(e) => setTitle(e.target.value)} />
+        {titleError && <Error>{titleError}</Error>}
 
         <Label>Content</Label>
         <TextArea
@@ -120,6 +143,7 @@ export default function CommunityForm() {
           value={content}
           onChange={(e) => setContent(e.target.value)}
         />
+        {contentError && <Error>{contentError}</Error>}
 
         <Label>Image</Label>
         <ImageInputContainer>
