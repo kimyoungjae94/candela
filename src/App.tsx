@@ -10,6 +10,7 @@ import styled, { createGlobalStyle } from 'styled-components';
 import reset from 'styled-reset';
 import { useEffect, useState } from 'react';
 import LoadingScreen from './components/loading-screen';
+import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase';
 import ProtectedRoute from './components/protected-route';
 import TravelCreate from './routes/travel-create-post';
@@ -105,12 +106,13 @@ const Wrapper = styled.div`
 
 function App() {
   const [isLoading, setLoading] = useState(true);
-  const init = async () => {
-    await auth.authStateReady();
-    setLoading(false);
-  };
+
   useEffect(() => {
-    init();
+    const unsubscribe = onAuthStateChanged(auth, () => {
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   return (

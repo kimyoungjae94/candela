@@ -116,7 +116,7 @@ export default function TravelCreate() {
       content,
       imageUrl,
       createdAt: serverTimestamp(),
-      author: user?.displayName || 'Anonymous', // Author field 추가
+      author: user?.displayName || 'Anonymous',
       authorId: user?.uid,
     });
 

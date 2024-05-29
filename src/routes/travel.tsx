@@ -1,9 +1,8 @@
 import { useState, useEffect } from 'react';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { db, auth } from '../firebase';
+import { useNavigate } from 'react-router-dom';
+import { db } from '../firebase';
 import styled from 'styled-components';
-import { useAuthState } from 'react-firebase-hooks/auth';
 import ReactPaginate from 'react-paginate';
 import '../styles/pagination.css';
 
@@ -97,55 +96,42 @@ interface Post {
 
 export default function Travel() {
   const [posts, setPosts] = useState<Post[]>([]);
-  const [user] = useAuthState(auth);
-  const location = useLocation();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(0);
   const postsPerPage = 8;
 
   useEffect(() => {
     const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const postsData = querySnapshot.docs.map((doc) => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          title: data.title,
-          content: data.content,
-          imageUrl: data.imageUrl,
-          author: data.author,
-          createdAt: data.createdAt || { seconds: 0, nanoseconds: 0 },
-        };
-      }) as Post[];
-      setPosts(postsData);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (querySnapshot) => {
+        const postsData = querySnapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            title: data.title,
+            content: data.content,
+            imageUrl: data.imageUrl,
+            author: data.author,
+            createdAt: data.createdAt || { seconds: 0, nanoseconds: 0 },
+          };
+        }) as Post[];
+        setPosts(postsData);
+      },
+      (error) => {
+        console.error('Error fetching posts:', error);
+      }
+    );
 
     return () => unsubscribe();
   }, []);
-
-  useEffect(() => {
-    if (location.state && (location.state as { newPost: Post }).newPost) {
-      const newPost = (location.state as { newPost: Post }).newPost;
-      setPosts((prevPosts) => {
-        if (!prevPosts.some((post) => post.id === newPost.id)) {
-          return [newPost, ...prevPosts];
-        }
-        return prevPosts;
-      });
-      navigate(location.pathname, { replace: true });
-    }
-  }, [location.state, navigate, location.pathname]);
 
   const handlePostClick = (postId: string) => {
     navigate(`/travel-detail/${postId}`);
   };
 
   const handleCreatePostClick = () => {
-    if (!user) {
-      navigate('/login');
-    } else {
-      navigate('/travel-create-post');
-    }
+    navigate('/login');
   };
 
   const handlePageClick = ({ selected }: { selected: number }) => {
@@ -156,6 +142,8 @@ export default function Travel() {
     currentPage * postsPerPage,
     (currentPage + 1) * postsPerPage
   );
+
+  const pageCount = Math.ceil(posts.length / postsPerPage);
 
   return (
     <PageContainer>
@@ -178,18 +166,21 @@ export default function Travel() {
             </PostItem>
           ))}
         </PostGrid>
-        <ReactPaginate
-          previousLabel={'<'}
-          nextLabel={'>'}
-          breakLabel={'...'}
-          breakClassName={'break-me'}
-          pageCount={Math.ceil(posts.length / postsPerPage)}
-          marginPagesDisplayed={2}
-          pageRangeDisplayed={5}
-          onPageChange={handlePageClick}
-          containerClassName={'pagination'}
-          activeClassName={'active'}
-        />
+        {posts.length > 0 && (
+          <ReactPaginate
+            previousLabel={'<'}
+            nextLabel={'>'}
+            breakLabel={'...'}
+            breakClassName={'break-me'}
+            pageCount={pageCount}
+            marginPagesDisplayed={2}
+            pageRangeDisplayed={5}
+            onPageChange={handlePageClick}
+            containerClassName={'pagination'}
+            activeClassName={'active'}
+            forcePage={currentPage >= pageCount ? 0 : currentPage}
+          />
+        )}
       </Container>
     </PageContainer>
   );

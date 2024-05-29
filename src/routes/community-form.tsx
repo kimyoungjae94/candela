@@ -119,6 +119,7 @@ export default function CommunityForm() {
       content,
       imageUrl,
       author: user?.displayName || 'Anonymous',
+      authorId: user?.uid,
       views: 0,
       createdAt: serverTimestamp(),
     });
