@@ -60,6 +60,14 @@ const WriteButton = styled.button`
   }
 `;
 
+const SearchInput = styled.input`
+  padding: 10px;
+  margin: 0 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+`;
+
 interface Post {
   id: string;
   title: string;
@@ -75,6 +83,7 @@ interface Post {
 const CommunityList = () => {
   const [qandas, setQandas] = useState<Post[]>([]);
   const [currentPage, setCurrentPage] = useState(0);
+  const [searchTerm, setSearchTerm] = useState('');
   const itemsPerPage = 10;
   const navigate = useNavigate();
   const location = useLocation();
@@ -103,7 +112,11 @@ const CommunityList = () => {
 
   const indexOfLastItem = (currentPage + 1) * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = qandas.slice(indexOfFirstItem, indexOfLastItem);
+  const filteredQandas = qandas.filter((qanda) =>
+    qanda.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const currentItems = filteredQandas.slice(indexOfFirstItem, indexOfLastItem);
 
   const handlePageClick = (event: { selected: number }) => {
     setCurrentPage(event.selected);
@@ -123,6 +136,12 @@ const CommunityList = () => {
       <TableContainer>
         <Title>Community</Title>
         <WriteButtonContainer>
+          <SearchInput
+            type='text'
+            placeholder='검색어를 입력해 주세요.'
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
           <WriteButton onClick={handleWriteClick}>글쓰기</WriteButton>
         </WriteButtonContainer>
         <Table>

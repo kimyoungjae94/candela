@@ -17,7 +17,7 @@ const FooterText = styled.p`
 export default function Footer() {
   return (
     <FooterContainer>
-      <FooterText>&copy; 2024 OUTDOOR BACKPACKING COMPANY.</FooterText>
+      <FooterText>&copy; 2024 OUTDOOR BACKPACKING COMMUNITY.</FooterText>
     </FooterContainer>
   );
 }

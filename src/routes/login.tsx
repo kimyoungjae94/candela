@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { auth } from '../firebase';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FirebaseError } from 'firebase/app';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useAuthState } from 'react-firebase-hooks/auth';
@@ -47,6 +47,13 @@ const Input = styled.input`
 const Error = styled.span`
   font-weight: 600;
   color: tomato;
+`;
+
+export const Switcher = styled.span`
+  margin-top: 10px;
+  a {
+    color: #1d9bf0;
+  }
 `;
 
 export default function CreateAccount() {
@@ -115,6 +122,9 @@ export default function CreateAccount() {
       </Form>
       {error !== '' ? <Error>{error}</Error> : null}
       <GoogleBtn />
+      <Switcher>
+        계정이 없으신가요? <Link to={'/create-account'}>회원가입 &rarr;</Link>
+      </Switcher>
     </Wrapper>
   );
 }

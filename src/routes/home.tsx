@@ -146,7 +146,7 @@ export default function Home() {
     <PageContainer>
       <Banner $backgroundImage={images[currentImageIndex]}>
         <TextOverlay>
-          <h1>Welcome to the Community!</h1>
+          <h1>Welcome to the Candela!</h1>
           <p>This is the home page of our community site.</p>
           <Button to='/about-us'>About Us</Button>
         </TextOverlay>
