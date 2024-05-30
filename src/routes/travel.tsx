@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import styled from 'styled-components';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import ReactPaginate from 'react-paginate';
 import '../styles/pagination.css';
 
@@ -99,6 +100,7 @@ export default function Travel() {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(0);
   const postsPerPage = 8;
+  const [user] = useAuthState(auth);
 
   useEffect(() => {
     const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
@@ -131,7 +133,11 @@ export default function Travel() {
   };
 
   const handleCreatePostClick = () => {
-    navigate('/login');
+    if (!user) {
+      navigate('/login');
+    } else {
+      navigate('/travel-create-post');
+    }
   };
 
   const handlePageClick = ({ selected }: { selected: number }) => {

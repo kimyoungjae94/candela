@@ -71,6 +71,7 @@ const TextArea = styled.textarea`
 `;
 
 const Input = styled.input`
+  width: 100%;
   padding: 10px;
   margin-bottom: 20px;
   border: 1px solid #ddd;
@@ -119,6 +120,7 @@ interface Post {
   title: string;
   content: string;
   author: string;
+  authorId: string; // authorId 필드를 추가합니다.
   views: number;
   imageUrl?: string;
   createdAt: {
@@ -205,31 +207,37 @@ export default function CommunityDetail() {
     }
 
     if (postId) {
-      const postRef = doc(db, 'qandas', postId);
+      const confirmed = window.confirm('수정하시겠습니까?');
+      if (confirmed) {
+        const postRef = doc(db, 'qandas', postId);
 
-      let newImageUrl = post?.imageUrl || '';
-      if (image) {
-        const imageRef = ref(storage, `images/${image.name}`);
-        await uploadBytes(imageRef, image);
-        newImageUrl = await getDownloadURL(imageRef);
+        let newImageUrl = post?.imageUrl || '';
+        if (image) {
+          const imageRef = ref(storage, `images/${image.name}`);
+          await uploadBytes(imageRef, image);
+          newImageUrl = await getDownloadURL(imageRef);
+        }
+
+        await updateDoc(postRef, {
+          title,
+          content,
+          imageUrl: newImageUrl,
+        });
+        setEditMode(false);
+        setPost((prev) =>
+          prev ? { ...prev, title, content, imageUrl: newImageUrl } : null
+        );
       }
-
-      await updateDoc(postRef, {
-        title,
-        content,
-        imageUrl: newImageUrl,
-      });
-      setEditMode(false);
-      setPost((prev) =>
-        prev ? { ...prev, title, content, imageUrl: newImageUrl } : null
-      );
     }
   };
 
   const handleDelete = async () => {
     if (postId) {
-      await deleteDoc(doc(db, 'qandas', postId));
-      navigate('/community-list');
+      const confirmed = window.confirm('삭제하시겠습니까?');
+      if (confirmed) {
+        await deleteDoc(doc(db, 'qandas', postId));
+        navigate('/community-list');
+      }
     }
   };
 
@@ -237,18 +245,14 @@ export default function CommunityDetail() {
     return <Container>Loading...</Container>;
   }
 
-  const isAuthor = user && user.displayName === post.author;
+  const isAuthor = user?.uid === post.authorId;
 
   return (
     <Container>
       {editMode ? (
         <>
           <h1>제목 :</h1>
-          <TextArea
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            rows={2}
-          />
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} />
           {titleError && <Error>{titleError}</Error>}
           <p>내용 :</p>
           <TextArea

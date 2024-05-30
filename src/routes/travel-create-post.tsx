@@ -70,31 +70,35 @@ export default function TravelCreate() {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setImage(e.target.files[0]);
-      setImageError(''); // Reset image error
+      setImageError('');
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!confirm('게시물을 등록하시겠습니까?')) {
+      return;
+    }
+
     let valid = true;
 
     if (title.trim() === '') {
-      setTitleError('Title is required');
+      setTitleError('제목을 적어주세요.');
       valid = false;
     } else {
       setTitleError('');
     }
 
     if (content.trim() === '') {
-      setContentError('Content is required');
+      setContentError('내용을 적어주세요.');
       valid = false;
     } else {
       setContentError('');
     }
 
     if (!image) {
-      setImageError('Image is required');
+      setImageError('사진을 첨부하세요.');
       valid = false;
     } else {
       setImageError('');
@@ -137,13 +141,12 @@ export default function TravelCreate() {
 
   return (
     <Container>
-      <h1>Create Post</h1>
       <Form onSubmit={handleSubmit}>
-        <Label>Title</Label>
+        <Label>제목</Label>
         <Input value={title} onChange={(e) => setTitle(e.target.value)} />
         {titleError && <Error>{titleError}</Error>}
 
-        <Label>Content</Label>
+        <Label>내용</Label>
         <TextArea
           rows={10}
           value={content}
@@ -151,11 +154,11 @@ export default function TravelCreate() {
         />
         {contentError && <Error>{contentError}</Error>}
 
-        <Label>Image</Label>
+        <Label>이미지</Label>
         <Input type='file' onChange={handleImageChange} />
         {imageError && <Error>{imageError}</Error>}
 
-        <Button type='submit'>Submit</Button>
+        <Button type='submit'>저장하기</Button>
       </Form>
     </Container>
   );

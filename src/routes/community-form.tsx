@@ -90,21 +90,37 @@ export default function CommunityForm() {
     }
   }, [user, navigate]);
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setImage(e.target.files[0]);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (title.trim() === '') {
-      setTitleError('Title is required');
+    if (!confirm('게시물을 등록하시겠습니까?')) {
       return;
+    }
+
+    let valid = true;
+
+    if (title.trim() === '') {
+      setTitleError('제목을 작성하세요.');
+      valid = false;
     } else {
       setTitleError('');
     }
 
     if (content.trim() === '') {
-      setContentError('Content is required');
-      return;
+      setContentError('내용을 작성하세요.');
+      valid = false;
     } else {
       setContentError('');
+    }
+
+    if (!valid) {
+      return;
     }
 
     let imageUrl = '';
@@ -127,12 +143,6 @@ export default function CommunityForm() {
     navigate('/community-list');
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0]);
-    }
-  };
-
   const handleImageRemove = () => {
     setImage(null);
     if (fileInputRef.current) {
@@ -142,13 +152,12 @@ export default function CommunityForm() {
 
   return (
     <FormContainer>
-      <h1>Create Post</h1>
       <Form onSubmit={handleSubmit}>
-        <Label>Title</Label>
+        <Label>제목</Label>
         <Input value={title} onChange={(e) => setTitle(e.target.value)} />
         {titleError && <Error>{titleError}</Error>}
 
-        <Label>Content</Label>
+        <Label>내용</Label>
         <TextArea
           rows={10}
           value={content}
@@ -156,17 +165,17 @@ export default function CommunityForm() {
         />
         {contentError && <Error>{contentError}</Error>}
 
-        <Label>Image</Label>
+        <Label>이미지</Label>
         <ImageInputContainer>
           <Input type='file' onChange={handleImageChange} ref={fileInputRef} />
           {image && (
             <RemoveImageButton type='button' onClick={handleImageRemove}>
-              Remove
+              취소하기
             </RemoveImageButton>
           )}
         </ImageInputContainer>
 
-        <Button type='submit'>Submit</Button>
+        <Button type='submit'>저장하기</Button>
       </Form>
     </FormContainer>
   );

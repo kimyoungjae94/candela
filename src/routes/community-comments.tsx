@@ -95,6 +95,7 @@ const CommentDate = styled.small`
 interface Comment {
   id: string;
   author: string;
+  authorId: string; // authorId 필드를 추가합니다.
   content: string;
   createdAt: {
     seconds: number;
@@ -140,6 +141,7 @@ const Comments = ({ postId }: { postId: string }) => {
     const commentsRef = collection(db, 'qandas', postId, 'comments');
     await addDoc(commentsRef, {
       author: user.displayName,
+      authorId: user.uid, // authorId 필드를 추가합니다.
       content,
       createdAt: serverTimestamp(),
     });
@@ -178,7 +180,7 @@ const Comments = ({ postId }: { postId: string }) => {
             placeholder='댓글을 작성하세요...'
           />
           {contentError && <ErrorMessage>{contentError}</ErrorMessage>}
-          <Button type='submit'>Submit</Button>
+          <Button type='submit'>저장하기</Button>
         </CommentForm>
       ) : (
         <p>로그인 이후 댓글 이용이 가능합니다.</p>
@@ -211,7 +213,7 @@ const Comments = ({ postId }: { postId: string }) => {
                     : 'Loading...'}
                 </CommentDate>
                 <CommentContent>{comment.content}</CommentContent>
-                {user?.displayName === comment.author && (
+                {user?.uid === comment.authorId && (
                   <ButtonContainer>
                     <Button
                       onClick={() => {

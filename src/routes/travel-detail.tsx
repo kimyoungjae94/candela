@@ -176,8 +176,8 @@ export default function TravelDetail() {
               onChange={(e) => setContent(e.target.value)}
             />
             <ButtonContainer>
-              <Button onClick={handleEdit}>Save</Button>
-              <Button onClick={() => setIsEditing(false)}>Cancel</Button>
+              <Button onClick={handleEdit}>저장</Button>
+              <Button onClick={() => setIsEditing(false)}>취소</Button>
             </ButtonContainer>
           </>
         ) : (
@@ -194,8 +194,8 @@ export default function TravelDetail() {
             <Divider />
             {isAuthor && (
               <ButtonContainer>
-                <Button onClick={() => setIsEditing(true)}>Edit</Button>
-                <Button onClick={handleDelete}>Delete</Button>
+                <Button onClick={() => setIsEditing(true)}>수정</Button>
+                <Button onClick={handleDelete}>삭제</Button>
               </ButtonContainer>
             )}
           </>
